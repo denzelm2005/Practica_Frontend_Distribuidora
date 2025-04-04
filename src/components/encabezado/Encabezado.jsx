@@ -3,7 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Container, Nav, Navbar, Offcanvas } from "react-bootstrap";
 import logo from "/vite.svg"; // Importación del logo de la ferretería
 import "bootstrap-icons/font/bootstrap-icons.css"; // Importación de íconos de Bootstrap
-import "../../../App.css";
+import "../../App.css";
+
 // Estilos personalizados de la aplicación
 
 const Encabezado = () => {
@@ -117,6 +118,14 @@ const Encabezado = () => {
               >
                 {estaColapsado ? <i className="bi-house-door-fill me-2"></i> : null}
                 <strong>Compras</strong>
+              </Nav.Link>
+
+              <Nav.Link
+                onClick={() => navegarA("/productos")}
+                className={estaColapsado ? "text-black" : "text-white"}
+              >
+                {estaColapsado ? <i className="bi-house-door-fill me-2"></i> : null}
+                <strong>Productos</strong>
               </Nav.Link>
 
 

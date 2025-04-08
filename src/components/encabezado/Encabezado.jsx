@@ -128,6 +128,23 @@ const Encabezado = () => {
                 <strong>Productos</strong>
               </Nav.Link>
 
+              <Nav.Link
+                onClick={() => navegarA("/usuarios")}
+                className={estaColapsado ? "text-black" : "text-white"}
+              >
+                {estaColapsado ? <i className="bi-house-door-fill me-2"></i> : null}
+                <strong>Usuarios</strong>
+              </Nav.Link>
+
+              <Nav.Link
+                onClick={() => navegarA("/empleados")}
+                className={estaColapsado ? "text-black" : "text-white"}
+              >
+                {estaColapsado ? <i className="bi-house-door-fill me-2"></i> : null}
+                <strong>Empleados</strong>
+              </Nav.Link>
+
+
 
               {/* Lógica condicional para mostrar Cerrar Sesión o Iniciar Sesión */}
               {estaLogueado ? (

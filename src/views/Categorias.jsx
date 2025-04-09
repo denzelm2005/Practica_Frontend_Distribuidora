@@ -21,6 +21,9 @@ const Categorias = () => {
   const [categoriasFiltradas, setCategoriasFiltradas] = useState([]);
   const [textoBusqueda, setTextoBusqueda] = useState("");
 
+  const [paginaActual, establecerPaginaActual] = useState(1);
+const elementosPorPagina = 3; // Número de elementos por página
+
    const obtenerCategorias = async () => { // Método renombrado a español
       try {
         const respuesta = await fetch('http://localhost:3000/api/categorias');
@@ -84,6 +87,7 @@ const agregarCategoria = async () => {
 const manejarCambioBusqueda = (e) => {
   const texto = e.target.value.toLowerCase();
   setTextoBusqueda(texto);
+  establecerPaginaActual(1)
   
   const filtradas = listaCategorias.filter(
     (categoria) =>
@@ -93,6 +97,11 @@ const manejarCambioBusqueda = (e) => {
   setCategoriasFiltradas(filtradas);
 };
 
+// Calcular elementos paginados
+const categoriasPaginadas = categoriasFiltradas.slice(
+  (paginaActual - 1) * elementosPorPagina,
+  paginaActual * elementosPorPagina
+);
   // Renderizado de la vista
   return (
     <>
@@ -120,9 +129,13 @@ const manejarCambioBusqueda = (e) => {
 
         {/* Pasa los estados como props al componente TablaCategorias */}
         <TablaCategorias 
-          categorias={categoriasFiltradas} 
+          categorias={categoriasPaginadas} 
           cargando={cargando} 
           error={errorCarga} 
+          totalElementos={listaCategorias.length} // Total de elementos
+          elementosPorPagina={elementosPorPagina} // Elementos por página
+          paginaActual={paginaActual} // Página actual
+          establecerPaginaActual={establecerPaginaActual} // Método para cambiar página
         />
                <ModalRegistroCategoria
           mostrarModal={mostrarModal}

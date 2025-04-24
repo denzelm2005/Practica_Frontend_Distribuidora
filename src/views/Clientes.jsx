@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import TablaClientes from '../components/clientes/TablaClientes';
 import ModalRegistroCliente from '../components/clientes/ModalRegistroCliente';
-import CuadroBusquedas from '../components/busquedas/Cuadrobusquedas';
+import CuadroBusquedas from '../components/busquedas/CuadroBusquedas';
 import { Container, Button, Row, Col } from "react-bootstrap";
 
 // Declaración del componente Clientes

@@ -1,24 +1,28 @@
-// Importaciones necesarias para la vista
 import React, { useState, useEffect } from 'react';
-import TablaUsuarios from '../components/usuarios/TablaUsuarios.jsx'; // Importa el componente de tabla
-import ModalRegistroUsuario from '../components/usuarios/ModalRegistroUsuario.jsx'; // Importa el modal
-import CuadroBusquedas from '../components/busquedas/Cuadrobusquedas.jsx';
+import TablaUsuarios from '../components/usuarios/TablaUsuarios.jsx';
+import ModalRegistroUsuario from '../components/usuarios/ModalRegistroUsuario.jsx';
+import ModalEliminacionUsuario from '../components/usuarios/ModalEliminacionUsuario.jsx';
+import ModalEdicionUsuario from '../components/usuarios/ModalActualizacionUsuario.jsx';
+import CuadroBusquedas from '../components/busquedas/CuadroBusquedas.jsx';
 import { Container, Button, Row, Col } from "react-bootstrap";
 
-// Declaración del componente Usuarios
 const Usuarios = () => {
-  // Estados para manejar los datos, carga y errores
-  const [listaUsuarios, setListaUsuarios] = useState([]); // Almacena los datos de la API
-  const [cargando, setCargando] = useState(true);        // Controla el estado de carga
-  const [errorCarga, setErrorCarga] = useState(null);    // Maneja errores de la petición
+  const [listaUsuarios, setListaUsuarios] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [errorCarga, setErrorCarga] = useState(null);
   const [mostrarModal, setMostrarModal] = useState(false);
   const [nuevoUsuario, setNuevoUsuario] = useState({
     usuario: '',
     contraseña: ''
   });
-
+  const [mostrarModalEliminacion, setMostrarModalEliminacion] = useState(false);
+  const [usuarioAEliminar, setUsuarioAEliminar] = useState(null);
   const [usuariosFiltrados, setUsuariosFiltrados] = useState([]);
   const [textoBusqueda, setTextoBusqueda] = useState("");
+  const [paginaActual, establecerPaginaActual] = useState(1);
+  const elementosPorPagina = 3;
+  const [usuarioEditado, setUsuarioEditado] = useState(null);
+  const [mostrarModalEdicion, setMostrarModalEdicion] = useState(false);
 
   const obtenerUsuarios = async () => {
     try {
@@ -27,21 +31,19 @@ const Usuarios = () => {
         throw new Error('Error al cargar los usuarios');
       }
       const datos = await respuesta.json();
-      setListaUsuarios(datos);    // Actualiza el estado con los datos
+      setListaUsuarios(datos);
       setUsuariosFiltrados(datos);
-      setCargando(false);         // Indica que la carga terminó
+      setCargando(false);
     } catch (error) {
-      setErrorCarga(error.message); // Guarda el mensaje de error
-      setCargando(false);           // Termina la carga aunque haya error
+      setErrorCarga(error.message);
+      setCargando(false);
     }
   };
 
-  // Lógica de obtención de datos con useEffect
   useEffect(() => {
-    obtenerUsuarios();            // Ejecuta la función al montar el componente
-  }, []);                         // Array vacío para que solo se ejecute una vez
+    obtenerUsuarios();
+  }, []);
 
-  // Maneja los cambios en los inputs del modal
   const manejarCambioInput = (e) => {
     const { name, value } = e.target;
     setNuevoUsuario(prev => ({
@@ -50,7 +52,14 @@ const Usuarios = () => {
     }));
   };
 
-  // Manejo la inserción de un nuevo usuario
+  const manejarCambioInputEdicion = (e) => {
+    const { name, value } = e.target;
+    setUsuarioEditado(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   const agregarUsuario = async () => {
     if (!nuevoUsuario.usuario || !nuevoUsuario.contraseña) {
       setErrorCarga("Por favor, completa todos los campos antes de guardar.");
@@ -70,7 +79,7 @@ const Usuarios = () => {
         throw new Error('Error al agregar el usuario');
       }
 
-      await obtenerUsuarios(); // Refresca toda la lista desde el servidor
+      await obtenerUsuarios();
       setNuevoUsuario({ usuario: '', contraseña: '' });
       setMostrarModal(false);
       setErrorCarga(null);
@@ -82,7 +91,8 @@ const Usuarios = () => {
   const manejarCambioBusqueda = (e) => {
     const texto = e.target.value.toLowerCase();
     setTextoBusqueda(texto);
-    
+    establecerPaginaActual(1);
+
     const filtrados = listaUsuarios.filter(
       (usuario) =>
         usuario.usuario.toLowerCase().includes(texto) ||
@@ -91,7 +101,74 @@ const Usuarios = () => {
     setUsuariosFiltrados(filtrados);
   };
 
-  // Renderizado de la vista
+  const eliminarUsuario = async () => {
+    if (!usuarioAEliminar) return;
+
+    try {
+      const respuesta = await fetch(`http://localhost:3000/api/eliminarusuario/${usuarioAEliminar.id_usuario}`, {
+        method: 'DELETE',
+      });
+
+      if (!respuesta.ok) {
+        throw new Error('Error al eliminar el usuario');
+      }
+
+      await obtenerUsuarios();
+      setMostrarModalEliminacion(false);
+      establecerPaginaActual(1);
+      setUsuarioAEliminar(null);
+      setErrorCarga(null);
+    } catch (error) {
+      setErrorCarga(error.message);
+    }
+  };
+
+  const abrirModalEliminacion = (usuario) => {
+    setUsuarioAEliminar(usuario);
+    setMostrarModalEliminacion(true);
+  };
+
+  const abrirModalEdicion = (usuario) => {
+    setUsuarioEditado(usuario);
+    setMostrarModalEdicion(true);
+  };
+
+  const actualizarUsuario = async () => {
+    if (!usuarioEditado?.usuario || !usuarioEditado?.contraseña) {
+      setErrorCarga("Por favor, completa todos los campos antes de guardar.");
+      return;
+    }
+
+    try {
+      const respuesta = await fetch(`http://localhost:3000/api/actualizarusuario/${usuarioEditado.id_usuario}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          usuario: usuarioEditado.usuario,
+          contraseña: usuarioEditado.contraseña,
+        }),
+      });
+
+      if (!respuesta.ok) {
+        throw new Error('Error al actualizar el usuario');
+      }
+
+      await obtenerUsuarios();
+      setMostrarModalEdicion(false);
+      setUsuarioEditado(null);
+      setErrorCarga(null);
+    } catch (error) {
+      setErrorCarga(error.message);
+    }
+  };
+
+  const usuariosPaginados = usuariosFiltrados.slice(
+    (paginaActual - 1) * elementosPorPagina,
+    paginaActual * elementosPorPagina
+  );
+
   return (
     <>
       <Container className="mt-5">
@@ -104,7 +181,7 @@ const Usuarios = () => {
               Nuevo Usuario
             </Button>
           </Col>
-          <Col lg={6} md={8} sm={8} xs={7}>
+          <Col lg={5} md={8} sm={8} xs={7}>
             <CuadroBusquedas
               textoBusqueda={textoBusqueda}
               manejarCambioBusqueda={manejarCambioBusqueda}
@@ -114,13 +191,18 @@ const Usuarios = () => {
 
         <br/><br/>
 
-        {/* Pasa los estados como props al componente TablaUsuarios */}
-        <TablaUsuarios 
-          usuarios={usuariosFiltrados} 
-          cargando={cargando} 
-          error={errorCarga} 
+        <TablaUsuarios
+          usuarios={usuariosPaginados}
+          cargando={cargando}
+          error={errorCarga}
+          totalElementos={listaUsuarios.length}
+          elementosPorPagina={elementosPorPagina}
+          paginaActual={paginaActual}
+          establecerPaginaActual={establecerPaginaActual}
+          abrirModalEliminacion={abrirModalEliminacion}
+          abrirModalEdicion={abrirModalEdicion}
         />
-        
+
         <ModalRegistroUsuario
           mostrarModal={mostrarModal}
           setMostrarModal={setMostrarModal}
@@ -129,10 +211,24 @@ const Usuarios = () => {
           agregarUsuario={agregarUsuario}
           errorCarga={errorCarga}
         />
+
+        <ModalEliminacionUsuario
+          mostrarModalEliminacion={mostrarModalEliminacion}
+          setMostrarModalEliminacion={setMostrarModalEliminacion}
+          eliminarUsuario={eliminarUsuario}
+        />
+
+        <ModalEdicionUsuario
+          mostrarModalEdicion={mostrarModalEdicion}
+          setMostrarModalEdicion={setMostrarModalEdicion}
+          usuarioEditado={usuarioEditado}
+          manejarCambioInputEdicion={manejarCambioInputEdicion}
+          actualizarUsuario={actualizarUsuario}
+          errorCarga={errorCarga}
+        />
       </Container>
     </>
   );
 };
 
-// Exportación del componente
 export default Usuarios;

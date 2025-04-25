@@ -1,16 +1,15 @@
-// Importaciones necesarias para la vista
 import React, { useState, useEffect } from 'react';
-import TablaEmpleados from '../components/empleados/TablaEmpleados'; // Importa el componente de tabla
+import TablaEmpleados from '../components/empleados/TablaEmpleados';
 import ModalRegistroEmpleado from '../components/empleados/ModalRegistroEmpleado';
-import CuadroBusquedas from '../components/busquedas/Cuadrobusquedas';
+import ModalEliminacionEmpleado from '../components/empleados/ModalEliminacionEmpleado';
+import ModalEdicionEmpleado from '../components/empleados/ModalEdicionEmpleado';
+import CuadroBusquedas from '../components/busquedas/CuadroBusquedas';
 import { Container, Button, Row, Col } from "react-bootstrap";
 
-// Declaración del componente Empleados
 const Empleados = () => {
-  // Estados para manejar los datos, carga y errores
-  const [listaEmpleados, setListaEmpleados] = useState([]); // Almacena los datos de la API
-  const [cargando, setCargando] = useState(true);          // Controla el estado de carga
-  const [errorCarga, setErrorCarga] = useState(null);      // Maneja errores de la petición
+  const [listaEmpleados, setListaEmpleados] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [errorCarga, setErrorCarga] = useState(null);
   const [mostrarModal, setMostrarModal] = useState(false);
   const [nuevoEmpleado, setNuevoEmpleado] = useState({
     primer_nombre: '',
@@ -21,11 +20,14 @@ const Empleados = () => {
     cargo: '',
     fecha_contratacion: ''
   });
-
+  const [mostrarModalEliminacion, setMostrarModalEliminacion] = useState(false);
+  const [empleadoAEliminar, setEmpleadoAEliminar] = useState(null);
   const [empleadosFiltrados, setEmpleadosFiltrados] = useState([]);
   const [textoBusqueda, setTextoBusqueda] = useState("");
   const [paginaActual, establecerPaginaActual] = useState(1);
-  const elementosPorPagina = 3; // Número de elementos por página
+  const elementosPorPagina = 3;
+  const [empleadoEditado, setEmpleadoEditado] = useState(null);
+  const [mostrarModalEdicion, setMostrarModalEdicion] = useState(false);
 
   const obtenerEmpleados = async () => {
     try {
@@ -34,21 +36,19 @@ const Empleados = () => {
         throw new Error('Error al cargar los empleados');
       }
       const datos = await respuesta.json();
-      setListaEmpleados(datos);    // Actualiza el estado con los datos
+      setListaEmpleados(datos);
       setEmpleadosFiltrados(datos);
-      setCargando(false);          // Indica que la carga terminó
+      setCargando(false);
     } catch (error) {
-      setErrorCarga(error.message); // Guarda el mensaje de error
-      setCargando(false);          // Termina la carga aunque haya error
+      setErrorCarga(error.message);
+      setCargando(false);
     }
   };
 
-  // Lógica de obtención de datos con useEffect
   useEffect(() => {
-    obtenerEmpleados();            // Ejecuta la función al montar el componente
-  }, []);                          // Array vacío para que solo se ejecute una vez
+    obtenerEmpleados();
+  }, []);
 
-  // Maneja los cambios en los inputs del modal
   const manejarCambioInput = (e) => {
     const { name, value } = e.target;
     setNuevoEmpleado(prev => ({
@@ -57,7 +57,14 @@ const Empleados = () => {
     }));
   };
 
-  // Manejo la inserción de un nuevo empleado
+  const manejarCambioInputEdicion = (e) => {
+    const { name, value } = e.target;
+    setEmpleadoEditado(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   const agregarEmpleado = async () => {
     if (!nuevoEmpleado.primer_nombre || !nuevoEmpleado.primer_apellido || 
         !nuevoEmpleado.celular || !nuevoEmpleado.cargo || !nuevoEmpleado.fecha_contratacion) {
@@ -78,7 +85,7 @@ const Empleados = () => {
         throw new Error('Error al agregar el empleado');
       }
 
-      await obtenerEmpleados(); // Refresca toda la lista desde el servidor
+      await obtenerEmpleados();
       setNuevoEmpleado({
         primer_nombre: '',
         segundo_nombre: '',
@@ -98,7 +105,7 @@ const Empleados = () => {
   const manejarCambioBusqueda = (e) => {
     const texto = e.target.value.toLowerCase();
     setTextoBusqueda(texto);
-    establecerPaginaActual(1); // Resetea a la primera página al buscar
+    establecerPaginaActual(1);
     
     const filtrados = listaEmpleados.filter(
       (empleado) =>
@@ -113,13 +120,72 @@ const Empleados = () => {
     setEmpleadosFiltrados(filtrados);
   };
 
-  // Calcular elementos paginados
+  const eliminarEmpleado = async () => {
+    if (!empleadoAEliminar) return;
+
+    try {
+      const respuesta = await fetch(`http://localhost:3000/api/eliminarempleado/${empleadoAEliminar.id_empleado}`, {
+        method: 'DELETE',
+      });
+
+      if (!respuesta.ok) {
+        throw new Error('Error al eliminar el empleado');
+      }
+
+      await obtenerEmpleados();
+      setMostrarModalEliminacion(false);
+      establecerPaginaActual(1);
+      setEmpleadoAEliminar(null);
+      setErrorCarga(null);
+    } catch (error) {
+      setErrorCarga(error.message);
+    }
+  };
+
+  const abrirModalEliminacion = (empleado) => {
+    setEmpleadoAEliminar(empleado);
+    setMostrarModalEliminacion(true);
+  };
+
+  const abrirModalEdicion = (empleado) => {
+    setEmpleadoEditado(empleado);
+    setMostrarModalEdicion(true);
+  };
+
+  const actualizarEmpleado = async () => {
+    if (!empleadoEditado?.primer_nombre || !empleadoEditado?.primer_apellido || 
+        !empleadoEditado?.celular || !empleadoEditado?.cargo || !empleadoEditado?.fecha_contratacion) {
+      setErrorCarga("Por favor, completa todos los campos obligatorios antes de guardar.");
+      return;
+    }
+
+    try {
+      const respuesta = await fetch(`http://localhost:3000/api/actualizarempleado/${empleadoEditado.id_empleado}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(empleadoEditado),
+      });
+
+      if (!respuesta.ok) {
+        throw new Error('Error al actualizar el empleado');
+      }
+
+      await obtenerEmpleados();
+      setMostrarModalEdicion(false);
+      setEmpleadoEditado(null);
+      setErrorCarga(null);
+    } catch (error) {
+      setErrorCarga(error.message);
+    }
+  };
+
   const empleadosPaginados = empleadosFiltrados.slice(
     (paginaActual - 1) * elementosPorPagina,
     paginaActual * elementosPorPagina
   );
 
-  // Renderizado de la vista
   return (
     <>
       <Container className="mt-5">
@@ -142,15 +208,16 @@ const Empleados = () => {
 
         <br/><br/>
 
-        {/* Pasa los estados como props al componente TablaEmpleados */}
         <TablaEmpleados 
           empleados={empleadosPaginados} 
           cargando={cargando} 
           error={errorCarga}
-          totalElementos={empleadosFiltrados.length} // Total de elementos
-          elementosPorPagina={elementosPorPagina} // Elementos por página
-          paginaActual={paginaActual} // Página actual
-          establecerPaginaActual={establecerPaginaActual} // Método para cambiar página
+          totalElementos={empleadosFiltrados.length}
+          elementosPorPagina={elementosPorPagina}
+          paginaActual={paginaActual}
+          establecerPaginaActual={establecerPaginaActual}
+          abrirModalEliminacion={abrirModalEliminacion}
+          abrirModalEdicion={abrirModalEdicion}
         />
         <ModalRegistroEmpleado
           mostrarModal={mostrarModal}
@@ -160,10 +227,22 @@ const Empleados = () => {
           agregarEmpleado={agregarEmpleado}
           errorCarga={errorCarga}
         />
+        <ModalEliminacionEmpleado
+          mostrarModalEliminacion={mostrarModalEliminacion}
+          setMostrarModalEliminacion={setMostrarModalEliminacion}
+          eliminarEmpleado={eliminarEmpleado}
+        />
+        <ModalEdicionEmpleado
+          mostrarModalEdicion={mostrarModalEdicion}
+          setMostrarModalEdicion={setMostrarModalEdicion}
+          empleadoEditado={empleadoEditado}
+          manejarCambioInputEdicion={manejarCambioInputEdicion}
+          actualizarEmpleado={actualizarEmpleado}
+          errorCarga={errorCarga}
+        />
       </Container>
     </>
   );
 };
 
-// Exportación del componente
 export default Empleados;

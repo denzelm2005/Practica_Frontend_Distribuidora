@@ -3,7 +3,7 @@ import React from 'react';
 import { Table, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const TablaVentas = ({ ventas, cargando, error, obtenerDetalles, abrirModalEliminacion}) => {
+const TablaVentas = ({ ventas, cargando, error, obtenerDetalles, abrirModalEliminacion, abrirModalActualizacion}) => {
   if (cargando) {
     return <div>Cargando ventas...</div>; // Muestra mensaje mientras carga
   }
@@ -44,9 +44,18 @@ const TablaVentas = ({ ventas, cargando, error, obtenerDetalles, abrirModalElimi
           <Button
             variant="outline-danger"
             size="sm"
+              className="me-2"
             onClick={() => abrirModalEliminacion(venta)}
           >
             <i className="bi bi-trash"></i>
+          </Button>
+
+          <Button
+            variant="outline-danger"
+            size="sm"
+            onClick={() => abrirModalActualizacion(venta)}
+          >
+            <i className="bi bi-pencil"></i>
           </Button>
         </td>
           </tr>

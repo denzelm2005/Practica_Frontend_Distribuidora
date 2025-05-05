@@ -3,14 +3,13 @@ import TablaCompras from '../components/compras/TablaCompras';
 import ModalDetallesCompra from '../components/detalles_compras/ModalDetallesCompras';
 import ModalEliminacionCompra from '../components/compras/ModalEliminacionCompra';
 import ModalRegistroCompra from '../components/compras/ModalRegistroCompra';
-import { Container, Button, Row, Col, Alert } from "react-bootstrap";
+import { Container, Button, Row, Col } from "react-bootstrap";
 
 // Declaración del componente Compras
 const Compras = () => {
   const [listaCompras, setListaCompras] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [errorCarga, setErrorCarga] = useState(null);
-  const [mensajeExito, setMensajeExito] = useState(null);
 
   const [mostrarModal, setMostrarModal] = useState(false);
   const [detallesCompra, setDetallesCompra] = useState([]);
@@ -45,15 +44,13 @@ const Compras = () => {
       await obtenerCompras();
       setCompraAEliminar(null);
       setErrorCarga(null);
-      setMensajeExito('Compra eliminada correctamente');
-      setTimeout(() => setMensajeExito(null), 3000);
     } catch (error) {
       setErrorCarga(error.message);
     }
   };
 
   const abrirModalEliminacion = (compra) => {
-    setCompraAEliminar(compra);
+    immobilizeCompraAEliminar(compra);
     setMostrarModalEliminacion(true);
   };
 
@@ -76,7 +73,6 @@ const Compras = () => {
       detallesNuevos: detallesNuevos
     });
 
-    // Validaciones con mensajes más específicos
     if (!nuevaCompra.id_empleado) {
       setErrorCarga("Por favor, selecciona un empleado.");
       return;
@@ -92,11 +88,11 @@ const Compras = () => {
 
     try {
       const compraData = {
-        id_empleado: Number(nuevaCompra.id_empleado), // Asegura que id_empleado sea un número
+        id_empleado: Number(nuevaCompra.id_empleado),
         fecha_compra: nuevaCompra.fecha_compra.toISOString(),
         total_compra: detallesNuevos.reduce((sum, d) => sum + (d.cantidad * d.precio_unitario), 0),
         detalles: detallesNuevos.map(detalle => ({
-          id_producto: Number(detalle.id_producto), // Asegura que id_producto sea un número
+          id_producto: Number(detalle.id_producto),
           cantidad: detalle.cantidad,
           precio_unitario: detalle.precio_unitario
         }))
@@ -123,8 +119,6 @@ const Compras = () => {
       setDetallesNuevos([]);
       setMostrarModalRegistro(false);
       setErrorCarga(null);
-      setMensajeExito('Compra registrada correctamente');
-      setTimeout(() => setMensajeExito(null), 3000);
     } catch (error) {
       console.error('Error al registrar la compra:', error);
       setErrorCarga(error.message);
@@ -178,10 +172,7 @@ const Compras = () => {
         throw new Error('Error al cargar las compras');
       }
       const datos = await respuesta.json();
-      // Ordenar las compras por id_compra en orden ascendente
-      const comprasOrdenadas = datos.sort((a, b) => a.id_compra - b.id_compra);
-      console.log('Compras obtenidas y ordenadas:', comprasOrdenadas);
-      setListaCompras(comprasOrdenadas);
+      setListaCompras(datos);
       setCargando(false);
     } catch (error) {
       setErrorCarga(error.message);
@@ -200,11 +191,6 @@ const Compras = () => {
       <Container className="mt-5">
         <br />
         <h4>Compras con Detalles</h4>
-        {mensajeExito && (
-          <Alert variant="success" onClose={() => setMensajeExito(null)} dismissible>
-            {mensajeExito}
-          </Alert>
-        )}
         <Row>
           <Col lg={2} md={4} sm={4} xs={5}>
             <Button variant="primary" onClick={() => setMostrarModalRegistro(true)} style={{ width: "100%" }}>

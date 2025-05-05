@@ -94,6 +94,13 @@ const ModalRegistroCompra = ({
       return;
     }
 
+    // Verificar stock
+    const producto = productos.find(p => p.id_producto === nuevoDetalle.id_producto);
+    if (producto && nuevoDetalle.cantidad > producto.stock) {
+      alert(`Stock insuficiente de ${producto.nombre_producto}. Unidades disponibles: ${producto.stock}`);
+      return;
+    }
+
     const detalle = {
       id_producto: nuevoDetalle.id_producto,
       nombre_producto: productoSeleccionado?.label || '',
@@ -137,7 +144,7 @@ const ModalRegistroCompra = ({
       <Modal.Body>
         <Form>
           <Row>
-            <Col xs={12} sm={12} md={6} lg={6}>
+            <Col xs={12} sm={12} md={4} lg={4}>
               <Form.Group className="mb-3" controlId="formEmpleado">
                 <Form.Label>Empleado</Form.Label>
                 <AsyncSelect
@@ -151,7 +158,7 @@ const ModalRegistroCompra = ({
                 />
               </Form.Group>
             </Col>
-            <Col xs={12} sm={12} md={6} lg={6}>
+            <Col xs={12} sm={12} md={4} lg={4}>
               <Form.Group className="mb-3" controlId="formFechaCompra">
                 <Form.Label>Fecha de Compra</Form.Label>
                 <br />

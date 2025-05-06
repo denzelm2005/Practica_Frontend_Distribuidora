@@ -2,15 +2,14 @@ import React from 'react';
 import { Table, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const TablaCompras = ({ compras, cargando, error, obtenerDetalles, abrirModalEliminacion }) => {
+const TablaCompras = ({ compras, cargando, error, obtenerDetalles, abrirModalEliminacion, abrirModalActualizacion }) => {
   if (cargando) {
-    return <div>Cargando compras...</div>; // Muestra mensaje mientras carga
+    return <div>Cargando compras...</div>;
   }
   if (error) {
-    return <div>Error: {error}</div>; // Muestra error si ocurre
+    return <div>Error: {error}</div>;
   }
 
-  // Renderizado de la tabla con los datos recibidos
   return (
     <Table striped bordered hover responsive>
       <thead>
@@ -41,9 +40,17 @@ const TablaCompras = ({ compras, cargando, error, obtenerDetalles, abrirModalEli
               <Button
                 variant="outline-danger"
                 size="sm"
+                className="me-2"
                 onClick={() => abrirModalEliminacion(compra)}
               >
                 <i className="bi bi-trash"></i>
+              </Button>
+              <Button
+                variant="outline-danger"
+                size="sm"
+                onClick={() => abrirModalActualizacion(compra)}
+              >
+                <i className="bi bi-pencil"></i>
               </Button>
             </td>
           </tr>
@@ -53,5 +60,4 @@ const TablaCompras = ({ compras, cargando, error, obtenerDetalles, abrirModalEli
   );
 };
 
-// Exportación del componente
 export default TablaCompras;

@@ -1,47 +1,41 @@
+//ModalDetallesCompra.jsx
+
 import React from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { Modal, Button, Table, Container } from 'react-bootstrap';
+import { Modal, Table, Button } from 'react-bootstrap';
 
 const ModalDetallesCompra = ({ mostrarModal, setMostrarModal, detalles, cargandoDetalles, errorDetalles }) => {
   return (
-    <Modal
-      show={mostrarModal}
-      onHide={() => setMostrarModal(false)}
-      fullscreen={true}
-      aria-labelledby="detalles-compra-modal"
-    >
+    <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} size="lg">
       <Modal.Header closeButton>
-        <Modal.Title id="detalles-compra-modal">Detalles de la Compra</Modal.Title>
+        <Modal.Title>Detalles de la Compra</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         {cargandoDetalles && <div>Cargando detalles...</div>}
+        {errorDetalles && <div className="text-danger">Error: {errorDetalles}</div>}
         {!cargandoDetalles && !errorDetalles && detalles.length > 0 && (
-          <Container>
-            <Table striped bordered hover responsive>
-              <thead>
-                <tr>
-                  <th>ID Detalle</th>
-                  <th>Producto</th>
-                  <th>Descripción</th>
-                  <th>Cantidad</th>
-                  <th>Precio Unitario</th>
-                  <th>Subtotal</th>
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unitario</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              {detalles.map((detalle, index) => (
+                <tr key={index}>
+                  <td>{detalle.nombre_producto}</td>
+                  <td>{detalle.cantidad}</td>
+                  <td>{detalle.precio_unitario.toFixed(2)}</td>
+                  <td>{(detalle.cantidad * detalle.precio_unitario).toFixed(2)}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {detalles.map((detalle) => (
-                  <tr key={detalle.id_detalle_compra}>
-                    <td>{detalle.id_detalle_compra}</td>
-                    <td>{detalle.nombre_producto}</td>
-                    <td>{detalle.descripcion_producto}</td>
-                    <td>{detalle.cantidad}</td>
-                    <td>C$ {detalle.precio_unitario.toFixed(2)}</td>
-                    <td>C$ {detalle.subtotal.toFixed(2)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </Container>
+              ))}
+            </tbody>
+          </Table>
+        )}
+        {!cargandoDetalles && !errorDetalles && detalles.length === 0 && (
+          <div>No hay detalles para esta compra.</div>
         )}
       </Modal.Body>
       <Modal.Footer>

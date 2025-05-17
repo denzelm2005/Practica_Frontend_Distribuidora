@@ -30,6 +30,7 @@ const CatalogoProductos = () => {
 
   return (
     <Container className="mt-5">
+        <br />
       <h4>Catálogo de Productos</h4>
       <Row>
         {listaProductos.map((producto, indice) => (

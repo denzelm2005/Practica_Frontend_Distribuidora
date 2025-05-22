@@ -1,16 +1,17 @@
 import { Card } from "react-bootstrap";
-import { Bar } from 'react-chartjs-2';
+import { Line } from 'react-chartjs-2';
 import Chart from 'chart.js/auto';
 
 
-const VentasPorMes = ({ meses, totales_por_mes }) => {
+
+const VentasPorDias = ({ dias, totales_por_dia }) => {
 
   const data = {
-    labels: meses, // Nombres de los meses
+    labels: dias, // Nombres de los meses
     datasets: [
         {
             label: 'VENTAS(C$)', // Total de ventas por mes
-            data: totales_por_mes, // Total de ventas por mes
+            data:totales_por_dia , // Total de ventas por mes
            backgroundColor: [
         'rgba(255, 99, 132, 0.2)',
         'rgba(54, 162, 235, 0.2)',
@@ -27,7 +28,7 @@ const VentasPorMes = ({ meses, totales_por_mes }) => {
         'rgba(153, 102, 255, 1)',
         'rgba(255, 159, 64, 1)',
       ],
-            borderWidth: 1,
+            borderWidth: 2,
         },
     ],
 };
@@ -43,23 +44,23 @@ const options = {
                 beginAtZero: true,
                 title: {
                     display: true,
-                    text: 'Cordobas (C$)',
+                    text: 'Ventas por dias',
                 },
             },
             x: {
                 title: {
                     display: true,
-                    text: 'Meses',
+                    text: 'Dias',
                 },
             },
         },
     },
 };
 return (<Card style={{ height: '100%' }}>
-    <Card.Title>Ventas por mes</Card.Title>
+    <Card.Title>Ventas por Dias</Card.Title>
     <div style={{ height: "300px", justifyContent: "center", alignItems: "center", display: "flex" }}>
-        <Bar data={data} options={options} />
+        <Line data={data} options={options} />
     </div>
 </Card>);
 };
-export default VentasPorMes;
+export default VentasPorDias;

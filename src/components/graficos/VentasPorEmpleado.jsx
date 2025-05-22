@@ -4,14 +4,14 @@ import { Bar } from 'react-chartjs-2';
 import Chart from 'chart.js/auto';
 
 
-const VentasPorEmpleado = ({ empleados, total_ventas  }) => {
+const VentasPorEmpleado = ({ empleados, totales_por_empleado }) => {
   // Define chart data
   const data = {
     labels: empleados,// Array de nombres de empleados
     datasets: [
       {
         label: 'Ventas por Empleado (C$)',
-        data: total_ventas , // Array de totales de ventas
+        data: totales_por_empleado, // Array de totales de ventas
         backgroundColor: [
         'rgba(255, 99, 132, 0.2)',
         'rgba(54, 162, 235, 0.2)',
@@ -62,7 +62,7 @@ const VentasPorEmpleado = ({ empleados, total_ventas  }) => {
     <Card>
       <Card.Body>
         <Card.Title>Ventas por Empleado</Card.Title>
-         <div style={{ height: "300px", justifyContent: "center", alignItems: "center", display: "flex" }}>
+        <div style={{ height: "300px", justifyContent: "center", alignItems: "center", display: "flex" }}>
         <Bar data={data} options={options} />
     </div>
       </Card.Body>

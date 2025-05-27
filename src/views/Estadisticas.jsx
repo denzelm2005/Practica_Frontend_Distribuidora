@@ -59,7 +59,7 @@ const cargatotalVentasporempleado = async () => {
   }, []); // Empty dependency array to run once on mount
 
   return (
-    <Container className="mt-5">
+    <Container className="mt-4">
       <br />
       <h4>Estadísticas</h4>
       <Row className="mt-4">

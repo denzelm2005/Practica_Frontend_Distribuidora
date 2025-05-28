@@ -372,7 +372,7 @@ const Productos = () => {
           </Button>
         </Col>
 
-              <Col lg={3} md={4} sm={4} xs={5}>
+        <Col lg={3} md={4} sm={4} xs={5}>
         <Button
           className="mb-3"
           onClick={() => exportarExcelProductos()}

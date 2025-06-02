@@ -11,7 +11,7 @@ const CatalogoProductos = () => {
   const [productosFiltrados, setProductosFiltrados] = useState([]);
   const [textoBusqueda, setTextoBusqueda] = useState('');
   const [paginaActual, setPaginaActual] = useState(1);
-  const elementosPorPagina = 3;
+  const elementosPorPagina = 4 ;
 
   const obtenerProductos = async () => {
     try {
